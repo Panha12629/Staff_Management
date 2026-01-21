@@ -1,4 +1,4 @@
-##--------------------------------Staff Management Application--------------------------------
+## --------------------------------Staff Management Application--------------------------------
 
 A simple Staff Management system using ASP.NET Core Web API (backend with PostgreSQL) and React (frontend).
 
