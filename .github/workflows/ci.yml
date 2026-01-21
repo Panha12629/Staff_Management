@@ -1,0 +1,74 @@
+name: CI - Backend + Frontend
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: windows-latest  
+
+    steps:
+      # 1️⃣ Checkout repo
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 2️⃣ Setup .NET 8
+      - name: Setup .NET 8 SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 8.0.x
+
+      # 3️⃣ Setup Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+
+      # 4️⃣ Install PostgreSQL (Windows runner)
+      - name: Install PostgreSQL
+        uses: harmon758/postgresql-action@v1.1.2
+        with:
+          postgresql version: '15'
+          postgresql db: 'StaffDB'
+          postgresql user: 'postgres'
+          postgresql password: 'yourpassword'
+
+      # 5️⃣ Restore backend dependencies
+      - name: Restore .NET dependencies
+        run: dotnet restore ./backend/Staff_Management.sln
+
+      # 6️⃣ Build backend
+      - name: Build backend
+        run: dotnet build ./backend/Staff_Management.sln --configuration Release --no-restore
+
+      # 7️⃣ Run backend tests
+      - name: Run backend tests
+        run: dotnet test ./backend/Staff_Management.sln --no-build --verbosity normal
+
+      # 8️⃣ Apply EF Core migrations (reads connection from appsettings.json)
+      - name: Apply EF Core migrations
+        run: dotnet ef database update --project ./backend/Staff_Management.Infrastructure --startup-project ./backend/Staff_Management.API
+
+      # 9️⃣ Publish backend API
+      - name: Publish backend API
+        run: dotnet publish ./backend/Staff_Management.API -c Release -o ./backend/publish
+
+      # 🔟 Install frontend dependencies
+      - name: Install frontend dependencies
+        working-directory: ./frontend
+        run: npm install
+
+      # 1️⃣1️⃣ Build frontend
+      - name: Build frontend
+        working-directory: ./frontend
+        run: npm run build
+
+      # 1️⃣2️⃣ Upload frontend build as artifact
+      - name: Upload frontend build
+        uses: actions/upload-artifact@v3
+        with:
+          name: frontend-build
+          path: frontend/build

@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://localhost:7012/api/staff", 
+  baseURL: "http://localhost:5282/api/staff", 
 });
 
 export const getStaffs = (params) => api.get("/", { params });

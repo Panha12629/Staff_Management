@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const exportApi = axios.create({
-  baseURL: "https://localhost:7012/api/export", 
+  baseURL: "http://localhost:5282/api/export", 
 });
 
 export const exportExcel = () =>
